@@ -16,6 +16,10 @@ const userSchema = new Schema({
     enum: ["admin", "mentor", "user"],
     default: "user",
   },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 userSchema.methods.getJwtToken = function () {

@@ -1,6 +1,8 @@
 const { Router } = require("express");
 const {
   createUser,
+  getUserToVerify,
+  verifyUser,
   loginUser,
   getUser,
   logoutUser,
@@ -12,6 +14,10 @@ const { isAuthenticated, isAdmin } = require("../middlewares/auth");
 const route = Router();
 
 route.post("/create", createUser);
+
+route.get('/get-user-to-verify/:id', getUserToVerify)
+
+route.patch('/verify-user/:id', verifyUser);
 
 route.post("/login-user", loginUser);
 
