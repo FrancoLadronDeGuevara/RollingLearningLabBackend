@@ -11,6 +11,7 @@ const {
   deleteUserService,
 } = require("../services/user.services");
 const sendToken = require("../helpers/jwtToken");
+const sgMail = require("@sendgrid/mail");
 
 const strongPasswordRegex =
   /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
@@ -18,6 +19,7 @@ const strongEmailRegex =
   /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
 const createUser = async (req, res) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   try {
     const user = req.body;
 
@@ -47,6 +49,42 @@ const createUser = async (req, res) => {
     const userWithPassHash = await hashingPassword(user);
 
     const userCreated = await createUserService(userWithPassHash);
+
+    const verificationLink = `http://localhost:5173/verify-user/${userCreated._id}`;
+
+    const msg = {
+      to: user.email,
+      from: "rollingcodesupp@gmail.com",
+      subject: "¡Bienvenido a RollingCode Learning Lab!",
+      html: `<b>¡Hola email!</b>
+        <br/>
+          <br/>
+        <i>¡Bienvenido a RollingCode Learning Lab! Estamos emocionados de tenerte como parte de nuestra comunidad. 
+        Esperamos que disfrutes explorando nuestra plataforma y que te diviertas aprendiendo.
+          <br/>
+          <br/>
+          Para verificar tu cuenta => <a href="${verificationLink}">
+          <button style="padding: 8px 16px; color: #fff; background-color: #d81d26; border-radius:30px; cursor:pointer" >HAZ CLICK AQUÍ
+          </button>
+            </a>
+          <br/>
+          <br/>
+        ¡Gracias por ser parte de nuestra comunidad!
+          <br/>
+          <br/>
+        El equipo de RollingCode
+           `,
+    };
+
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log("Email enviado correctamente");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
     res
       .status(201)
       .json({ message: "Usuario creado con exito", user: userCreated });
