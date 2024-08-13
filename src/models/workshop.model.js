@@ -13,7 +13,7 @@ const workshopSchema = new Schema({
     required: [true, "Nombre de disertante obligatorio"],
   },
   date: {
-    type: Date,
+    type: String,
     required: [true, "La fecha es obligatoria"],
   },
   image: String,
