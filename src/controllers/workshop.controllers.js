@@ -4,11 +4,12 @@ const addWorkshop = async (req, res) => {
   try {
     const { title, description, speaker, date, image } = req.body;
 		if(!title.length || !description.length || !speaker.length || !date.length || !image.length) return res.status(500).json({message: 'Todos los campos deben completarse'});
-    const newWorkshop = new Workshop(title, description, speaker, date, image);
-    await newWorkshop.save();
+    const newWorkshop = new Workshop({title, description, speaker, date, image});
+    if(!newWorkshop) return res.status(400).json({message:"no se pudo crear el workshop"})
+    const workshopCreated = await newWorkshop.save();
     return res
       .status(200)
-      .json({ message: "Workshop creado con éxito", data: newWorkshop });
+      .json({ message: "Workshop creado con éxito", data: workshopCreated });
   } catch (error) {
     return res
       .status(500)
@@ -47,9 +48,9 @@ const getAllWorkshops = async (req, res) => {
   const maxElements = 10
   try {
     const page = parseInt(req.query.page) || 1;
-    const workshops = Workshop.find({}).skip(maxElements * (page - 1))
+    const workshops = await Workshop.find({}).skip(maxElements * (page - 1))
     .limit(maxElements);
-    if(!workshops){
+    if(!workshops.length){
       return res.status(404).json({message:"No hay workshops disponibles"})
     }
     return res.status(200).json({message:"Peticion exitosa", data: workshops})

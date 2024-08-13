@@ -4,8 +4,8 @@ const { addWorkshop, updateWorkshop, getWorkshop, getAllWorkshops } = require(".
 const { isAdmin, isAuthenticated } = require("../middlewares/auth");
 
 route.post("/create-workshop", isAuthenticated, isAdmin("admin"), addWorkshop);
-route.put("/update-workshop", isAuthenticated, isAdmin("admin"), updateWorkshop);
+route.put("/update-workshop/:id", isAuthenticated, isAdmin("admin"), updateWorkshop);
 route.get("/get-workshop/:id", isAuthenticated, getWorkshop);
-route.get("/get-all-workshops", getAllWorkshops)
+route.get("/", getAllWorkshops)
 
 module.exports = route
