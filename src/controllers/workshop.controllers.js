@@ -3,13 +3,12 @@ const{addWorkshopService, editWorkshopService, getWorkshopService, getAllWorksho
 
 const addWorkshop = async (req, res) => {
   try {
-    const { title, description, speaker, date, image } = req.body;
+    const { title, description, date, imageBanner } = req.body;
     if (
       !title.length ||
       !description.length ||
-      !speaker.length ||
       !date.length ||
-      !image.length
+      !imageBanner.length
     )
       return res
         .status(500)
@@ -19,9 +18,10 @@ const addWorkshop = async (req, res) => {
       .status(200)
       .json({ message: "Workshop creado con éxito", data: workshopCreated });
   } catch (error) {
+    console.log(error)
     return res
       .status(500)
-      .json({ message: "Error al crear el workshop ", error });
+      .json({ message: "Error al crear el workshop ", error: error.errors });
   }
 };
 const editWorkshop = async (req, res) => {

@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model, Types } = require("mongoose");
 const workshopSchema = new Schema({
   title: {
     type: String,
@@ -8,19 +8,47 @@ const workshopSchema = new Schema({
     type: String,
     required: [true, "La descripcion es obligatoria"],
   },
-  speaker: {
-    type: String,
-    required: [true, "Nombre de disertante obligatorio"],
-  },
   date: {
     type: String,
     required: [true, "La fecha es obligatoria"],
   },
-  image: String,
-  video: String,
+  time: {
+    type:String,
+    required: [true, "El horario es obligatorio"]
+  },
+  imageBanner: {
+    type:String,
+    required:[true, "Banner workshop es obligatoria"]
+  },
+  speakers: [{
+    type: Schema.Types.ObjectId,
+    ref:"User"
+  }],
+  attendees: [{
+    type:Schema.Types.ObjectId,
+    ref:"User"
+  }],
+  status: {
+    type:String,
+    enum:["pending", "completed", "canceled"],
+    default:"pending"
+  },
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref:"Comment"
+  }],
+  urlVideo: String,
+  urlZoom: {
+    type:String,
+    required: [true, "Enlace para workshop obligatorio"]
+  },
   createdAt: {
     type: Date,
     defualt: Date.now(),
+  },
+  updatedAt: {
+    type:Date,
+    default: Date.now()
   },
   finalized: {
     type: Boolean,
