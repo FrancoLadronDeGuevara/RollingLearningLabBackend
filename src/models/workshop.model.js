@@ -1,4 +1,4 @@
-const { Schema, model, Types } = require("mongoose");
+const { Schema, model } = require("mongoose");
 const workshopSchema = new Schema({
   title: {
     type: String,
@@ -9,7 +9,7 @@ const workshopSchema = new Schema({
     required: [true, "La descripcion es obligatoria"],
   },
   date: {
-    type: String,
+    type: Date,
     required: [true, "La fecha es obligatoria"],
   },
   time: {
