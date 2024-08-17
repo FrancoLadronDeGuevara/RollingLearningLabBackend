@@ -28,9 +28,11 @@ app.use(cookieParser());
 
 const userRoutes = require("../routes/user.routes");
 const workshopRoutes = require("../routes/workshop.routes");
+const eventRoutes = require("../routes/event.routes");
 
 app.use("/api/users", userRoutes);
 app.use("/api/workshops", workshopRoutes);
+app.use("/api/events", eventRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor en el puerto ${port}`);
