@@ -1,27 +1,34 @@
-const Workshop = require("../models/workshop.model");
+const validators = require("../helpers/validators");
 const{addWorkshopService, editWorkshopService, getWorkshopService, getAllWorkshopsService, deleteWorkshopService} = require("../services/workshop.services");
 
 const addWorkshop = async (req, res) => {
   try {
-    const { title, description, speaker, date, image } = req.body;
-    if (
-      !title.length ||
-      !description.length ||
-      !speaker.length ||
-      !date.length ||
-      !image.length
-    )
-      return res
-        .status(500)
-        .json({ message: "Todos los campos deben completarse" });
+    const { title, description, date, time } = req.body;
+    const resultsValidate = {
+      errorTitle: validators.validateTitle(title),
+      errorDescription: validators.validateDescription(description),
+      errorDate: validators.validateDate(date),
+      errorTime: validators.validateTime(time)
+    }
+    const {errorTitle, errorDescription, errorDate, errorTime} = resultsValidate
+    if(errorTitle || errorDescription || errorDate || errorTime){
+      res.status(400).json({errors: {
+        title: errorTitle,
+        description:errorDescription,
+        date: errorDate,
+        time:errorTime
+      }})
+      return false
+    }
     const workshopCreated = await addWorkshopService(req.body);
     return res
       .status(200)
       .json({ message: "Workshop creado con éxito", data: workshopCreated });
   } catch (error) {
+    console.log(error)
     return res
       .status(500)
-      .json({ message: "Error al crear el workshop ", error });
+      .json({ message: "Error al crear el workshop ", error: error.errors });
   }
 };
 const editWorkshop = async (req, res) => {
