@@ -1,10 +1,14 @@
 const Workshop = require("../models/workshop.model");
+const User = require("../models/user.model");
 
-const addWorkshopService = async (workshop) => {
-  const newWorkshop = new Workshop(workshop);
+const addWorkshopService = async (workshop, id) => {
+  const newWorkshop = new Workshop({ ...workshop, createdBy: id });
   if (!newWorkshop)
     return res.status(400).json({ message: "No se pudo agregar el workshop" });
   await newWorkshop.save();
+  await User.findByIdAndUpdate(id, {
+    $push: { createdWorkshops: newWorkshop._id },
+  });
   return newWorkshop;
 };
 
@@ -19,20 +23,21 @@ const editWorkshopService = async (id, data) => {
 };
 
 const getWorkshopService = async (id) => {
-  const workshop = await Workshop.findById(id);
+  const workshop = await Workshop.findById(id).populate(
+    "createdBy",
+    "username email"
+  );
   if (!workshop) {
     return res.status(404).json({ message: "Workshop no encontrado" });
   }
   return workshop;
 };
 
-const getAllWorkshopsService = async (page, maxElements) => {
-  const workshops = await Workshop.find({})
-    .skip(maxElements * (page - 1))
-    .limit(maxElements);
-  if (!workshops.length) {
-    return res.status(404).json({ message: "No hay workshops disponibles" });
-  }
+const getAllWorkshopsService = async () => {
+  const workshops = await Workshop.find()
+    .populate("createdBy", "username email role")
+    .populate("likes", "username")
+    .populate("registeredUsers", "username");
   return workshops;
 };
 
@@ -47,5 +52,5 @@ module.exports = {
   editWorkshopService,
   getWorkshopService,
   getAllWorkshopsService,
-	deleteWorkshopService
+  deleteWorkshopService,
 };

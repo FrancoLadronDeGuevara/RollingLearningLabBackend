@@ -10,7 +10,14 @@ const getByEmailService = async (email) => {
   return User.findOne({ email });
 };
 
+const getUserByUsernameService = async (username) => {
+  return User.findOne({ username });
+};
 const getUserService = async (id) => {
+  return User.findById(id);
+};
+
+const getUserByIdService = async (id) => {
   return User.findById(id);
 };
 
@@ -29,7 +36,9 @@ const editUserService = async (id, user) => {
 module.exports = {
   createUserService,
   getUserService,
+  getUserByIdService,
   getByEmailService,
+  getUserByUsernameService,
   getAllUsersService,
   deleteUserService,
   editUserService,

@@ -5,6 +5,7 @@ const {
   verifyUser,
   loginUser,
   getUser,
+  getUserById,
   logoutUser,
   getAllUsers,
   editUser,
@@ -17,15 +18,17 @@ route.post("/create", createUser);
 
 route.get('/get-user-to-verify/:id', getUserToVerify)
 
-route.patch('/verify-user/:id', verifyUser);
+route.put('/verify-user/:id', verifyUser);
 
 route.post("/login-user", loginUser);
 
 route.get("/get-user", isAuthenticated, getUser);
 
+route.get("/get-user-by-id/:id", isAuthenticated, isAdmin("admin"), getUserById);
+
 route.get("/logout-user", logoutUser);
 
-route.get("/", getAllUsers);
+route.get("/", isAuthenticated, isAdmin("admin"), getAllUsers);
 
 route.put("/edit/:id", isAuthenticated, isAdmin("admin"), editUser);
 

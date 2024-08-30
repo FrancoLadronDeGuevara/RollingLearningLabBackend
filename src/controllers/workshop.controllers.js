@@ -1,47 +1,50 @@
 const validators = require("../helpers/validators");
-const{addWorkshopService, editWorkshopService, getWorkshopService, getAllWorkshopsService, deleteWorkshopService} = require("../services/workshop.services");
+const {
+  addWorkshopService,
+  editWorkshopService,
+  getWorkshopService,
+  getAllWorkshopsService,
+  deleteWorkshopService,
+} = require("../services/workshop.services");
 
 const addWorkshop = async (req, res) => {
   try {
-    const { title, description, date, time } = req.body;
-    const resultsValidate = {
-      errorTitle: validators.validateTitle(title),
-      errorDescription: validators.validateDescription(description),
-      errorDate: validators.validateDate(date),
-      errorTime: validators.validateTime(time)
+    const {id} = req.user
+    const workshop = req.body;
+
+    if (
+      !workshop.title ||
+      !workshop.description ||
+      !workshop.date ||
+      !workshop.imageBanner ||
+      !workshop.startTime ||
+      !workshop.endTime ||
+      !workshop.speakers ||
+      !workshop.attendees ||
+      !workshop.urlZoom
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Todos los campos son obligatorios" });
     }
-    const {errorTitle, errorDescription, errorDate, errorTime} = resultsValidate
-    if(errorTitle || errorDescription || errorDate || errorTime){
-      res.status(400).json({errors: {
-        title: errorTitle,
-        description:errorDescription,
-        date: errorDate,
-        time:errorTime
-      }})
-      return false
-    }
-    const workshopCreated = await addWorkshopService(req.body);
-    return res
-      .status(200)
-      .json({ message: "Workshop creado con éxito", data: workshopCreated });
+
+    const workshopCreated = await addWorkshopService(workshop, id);
+
+    return res.status(200).json(workshopCreated);
   } catch (error) {
-    console.log(error)
     return res
       .status(500)
-      .json({ message: "Error al crear el workshop ", error: error.errors });
+      .json({ message: "Error al crear el workshop ", error});
   }
 };
 const editWorkshop = async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
-    const updatedWorkshop = await editWorkshopService(id,data)
-    return res
-		.status(200)
-		.json({
-			message: "Workshop actualizado con éxito",
-			data: updatedWorkshop,
-		});
+
+    const updatedWorkshop = await editWorkshopService(id, data);
+
+    return res.status(200).json(updatedWorkshop);
   } catch (error) {
     return res
       .status(500)
@@ -52,23 +55,25 @@ const editWorkshop = async (req, res) => {
 const getWorkshop = async (req, res) => {
   try {
     const { id } = req.params;
-    const workshop = await getWorkshopService(id)
+    
+    const workshop = await getWorkshopService(id);
     return res
       .status(200)
-      .json({ message: "Petición exitosa", data: workshop });
+      .json(workshop);
   } catch (error) {
     return res.status(500).json({ message: `Ha ocurrido un error: ${error}` });
   }
 };
 
 const getAllWorkshops = async (req, res) => {
-  const maxElements = 10;
   try {
-    const page = parseInt(req.query.page) || 1;
-    const workshops = await getAllWorkshopsService(page, maxElements)
-    return res
-      .status(200)
-      .json({ message: "Peticion exitosa", data: workshops });
+    const workshops = await getAllWorkshopsService();
+
+    if (workshops.length === 0) {
+      return res.status(404).json({ message: "No hay workshops creados" });
+    }
+
+    res.status(200).json(workshops);
   } catch (error) {
     return res.status(500).json({ message: `Hubo un error: ${error}` });
   }
