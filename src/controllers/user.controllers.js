@@ -4,11 +4,13 @@ const {
 } = require("../helpers/passwordHashing");
 const {
   getUserService,
+  getUserByIdService,
   createUserService,
   getByEmailService,
   getAllUsersService,
   editUserService,
   deleteUserService,
+  getUserByUsernameService,
 } = require("../services/user.services");
 const sendToken = require("../helpers/jwtToken");
 const sgMail = require("@sendgrid/mail");
@@ -17,6 +19,7 @@ const strongPasswordRegex =
   /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
 const strongEmailRegex =
   /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+const usernameRegex = /^[a-zA-Z0-9]{8,20}$/;
 
 const createUser = async (req, res) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -25,12 +28,19 @@ const createUser = async (req, res) => {
 
     const userExist = await getByEmailService(user.email);
 
+    const usernameExist = await getUserByUsernameService(user.username);
+
+    if (usernameExist)
+      return res
+        .status(400)
+        .json({ message: "El nombre de usuario ya se encuentra ocupado" });
+
     if (userExist)
       return res
         .status(400)
         .json({ message: "El email ya se encuentra registrado" });
 
-    if (!user.password || !user.email)
+    if (!user.password || !user.email || !user.username)
       return res
         .status(400)
         .json({ message: "Todos los campos son obligatorios" });
@@ -45,6 +55,11 @@ const createUser = async (req, res) => {
       return res
         .status(400)
         .json({ message: "El correo ingresado no es valido" });
+
+    if (!usernameRegex.test(user.username))
+      return res
+        .status(400)
+        .json({ message: "El nombre de usuario no es valido" });
 
     const userWithPassHash = await hashingPassword(user);
 
@@ -110,7 +125,6 @@ const getUserToVerify = async (req, res) => {
 const verifyUser = async (req, res) => {
   try {
     const { id } = req.params;
-
     const user = await getUserService(id);
 
     if (!user) return res.status(400).json({ message: "El usuario no existe" });
@@ -146,6 +160,14 @@ const loginUser = async (req, res) => {
         .status(400)
         .json({ message: "El usuario no ha sido verificado" });
 
+    if (!user.active)
+      return res
+        .status(400)
+        .json({
+          message:
+            "El usuario ha sido dado de baja por no cumplir con las politicas",
+        });
+
     const passMatch = await passwordChecking(payload.password, user.password);
 
     if (!passMatch)
@@ -178,6 +200,25 @@ const logoutUser = async (req, res) => {
 const getUser = async (req, res, next) => {
   try {
     const user = await getUserService(req.user.id);
+
+    if (!user) {
+      return res.status(400).json({ message: "El usuario no existe" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al obtener el usuario", error });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(id)
+    const user = await getUserByIdService(id);
 
     if (!user) {
       return res.status(400).json({ message: "El usuario no existe" });
@@ -252,6 +293,7 @@ module.exports = {
   getUserToVerify,
   verifyUser,
   getUser,
+  getUserById,
   loginUser,
   logoutUser,
   getAllUsers,

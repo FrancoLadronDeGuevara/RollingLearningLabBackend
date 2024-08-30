@@ -9,7 +9,7 @@ const validators = {
     if (description.length < 10)
       return "La descripción debe tener al menos 10 caracteres.";
     if (description.length > 500)
-      return "Descripción demasiado extensa no debe tener más de 500 caracteres.";
+      return "Descripción tdemasiado extensa no debe tener más de 500 caraceres.";
     return null;
   },
   validateDate: (date) => {
