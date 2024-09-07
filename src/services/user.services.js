@@ -18,7 +18,19 @@ const getUserService = async (id) => {
 };
 
 const getUserByIdService = async (id) => {
-  return User.findById(id);
+  try {
+    const user = await User.findById(id)
+      .populate("favoriteWorkshops")
+      .populate("favoriteEvents")
+      .populate("registeredWorkshops")
+      .populate("createdWorkshops")
+      .populate("attendanceHistory.workshop");
+
+    return user;
+  } catch (error) {
+    console.error("Error al obtener el usuario:", error);
+    throw new Error("Error interno del servidor");
+  }
 };
 
 const getAllUsersService = async () => {
