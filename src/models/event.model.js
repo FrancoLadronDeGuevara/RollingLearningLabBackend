@@ -11,34 +11,41 @@ const eventSchema = new Schema(
       required: [true, "Descripción obligatoria."],
     },
     date: {
-      type: Date,
+      type: String,
       required: [true, "Fecha obligatoria"],
     },
-    time: {
+    startTime: {
       type: String,
-      required: [true, "El horario es obligatorio"],
+      required: [true, "El horario de inicio es obligatorio"],
     },
-    comments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
+    endTime: {
+      type: String,
+      required: [true, "El horario de finalización es obligatorio"],
+    },
+    imageBanner: {
+      type: String,
+      required: [true, "Banner workshop es obligatoria"],
+    },
     likes: [
       {
         type: Schema.Types.ObjectId,
         ref: "User",
       },
     ],
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    status: {
+      type: String,
+      enum: ["PENDIENTE", "COMPLETADO", "CANCELADO"],
+      default: "PENDIENTE",
+    },
   },
   {
     timestamps: true,
   }
 );
 
-eventSchema.set("toJSON", {
-  transform: function (doc, retorno) {
-    (retorno.eventId = retorno._id), delete retorno._id, delete retorno.__v;
-  },
-});
+
 module.exports = model("Event", eventSchema);

@@ -1,10 +1,10 @@
 const Event = require("../models/event.model");
 const addEventService = async (event) => {
-  const eventCreated = await Event(data);
-  if (!eventCreated)
+  const newEvent = new Event(event);
+  if (!newEvent)
     return res.status(400).json({ message: "No se pudo crear el evento" });
-  await eventCreated.save();
-  return eventCreated;
+  await newEvent.save();
+  return newEvent;
 };
 const editEventService = async (id, body) => {
   const updateEvent = await Event.findByIdAndUpdate(id, body, { new: true });
@@ -22,13 +22,8 @@ const getEventByIdService = async (id) => {
   return broughtEvent;
 };
 
-const getAllEventsService = async (page, maxElements) => {
-  const events = await Event.find({})
-    .skip(maxElements * (page - 1))
-    .limit(maxElements);
-  if (!events)
-    return res.status(404).json({ message: "No se encontraron eventos" });
-  return events;
+const getAllEventsService = async () => {
+  return Event.find({});
 };
 
 const deleteEventService = async (id) => {

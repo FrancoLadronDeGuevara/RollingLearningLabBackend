@@ -43,12 +43,6 @@ const workshopSchema = new Schema(
       enum: ["PENDIENTE", "COMPLETADO", "CANCELADO"],
       default: "PENDIENTE",
     },
-    comments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
     urlVideo: {
       type: String,
     },

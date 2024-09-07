@@ -48,14 +48,8 @@ const userSchema = new Schema(
     ],
     registeredWorkshops: [
       {
-        type: [Schema.Types.ObjectId],
-        ref: "Workshop",
-      },
-    ],
-    comments: [
-      {
         type: Schema.Types.ObjectId,
-        ref: "Comment",
+        ref: "Workshop",
       },
     ],
     likedWorkshops: [
@@ -99,10 +93,6 @@ const userSchema = new Schema(
     active: {
       type: Boolean,
       default: true,
-    },
-    request: {
-      type: String,
-      enum: ["aceptado", "pendiente", "rechazado"],
     },
   },
   {
