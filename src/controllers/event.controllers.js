@@ -61,6 +61,7 @@ const deleteEvent = async (req, res) => {
     return res.status(500).json({ message: "Hubo un error", error });
   }
 };
+
 module.exports = {
   addEvent,
   editEvent,

@@ -1,5 +1,4 @@
 const {
-  getCommentByIdService,
   editCommentService,
   deleteCommentService,
   replyCommentService,
@@ -57,9 +56,8 @@ const editComment = async (req, res) => {
 
 const getWorkshopComments = async (req, res) => {
   try {
-    const { workshopId } = req.params;
-    const comments = await getWorkshopCommentsService(workshopId);
-
+    const { id } = req.params;
+    const comments = await getWorkshopCommentsService(id);
     res.status(200).json(comments);
   } catch (error) {
     res

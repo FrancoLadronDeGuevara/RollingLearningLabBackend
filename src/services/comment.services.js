@@ -25,9 +25,11 @@ const addEventCommentService = async (comment, id, userId) => {
 
 const getWorkshopCommentsService = async (id) => {
   const comments = await Comment.find({ workshop: id })
-    .populate("author", "username")
+  .populate({
+    path: "author",
+    select: "username profileImage",
+  })
     .populate("replies", "content author");
-
   return comments;
 };
 

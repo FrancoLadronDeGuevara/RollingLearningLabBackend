@@ -32,6 +32,7 @@ const deleteEventService = async (id) => {
     return res.status(400).json({ message: "No se pudo eliminar el evento" });
   return deletedEvent;
 };
+
 module.exports = {
   addEventService,
   editEventService,

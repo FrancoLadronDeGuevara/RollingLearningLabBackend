@@ -9,6 +9,7 @@ const commentSchema = new Schema(
         author: {
             type: Schema.Types.ObjectId,
             ref: "User",
+            required: [true, "El autor es obligatorio"],
         },
         workshop: {
             type: Schema.Types.ObjectId,

@@ -11,11 +11,17 @@ const {
   editUserService,
   deleteUserService,
   getUserByUsernameService,
+  updateUserService,
+  addFavoriteWorkshopService,
+  removeFavoriteWorkshopService,
+  removeFavoriteEventService,
+  addFavoriteEventService,
 } = require("../services/user.services");
+const bcrypt = require("bcrypt");
 const sendToken = require("../helpers/jwtToken");
 const sgMail = require("@sendgrid/mail");
 const { emailForUser } = require("../helpers/emailForUser");
-const {whitelist } = require("../config/whitelist");
+const { whitelist } = require("../config/whitelist");
 
 const strongPasswordRegex =
   /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
@@ -146,12 +152,10 @@ const loginUser = async (req, res) => {
         .json({ message: "El usuario no ha sido verificado" });
 
     if (!user.active)
-      return res
-        .status(400)
-        .json({
-          message:
-            "El usuario ha sido dado de baja por no cumplir con las politicas",
-        });
+      return res.status(400).json({
+        message:
+          "El usuario ha sido dado de baja por no cumplir con las politicas",
+      });
 
     const passMatch = await passwordChecking(payload.password, user.password);
 
@@ -272,6 +276,97 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const payload = req.body;
+
+    if (payload.oldPassword && payload.newPassword) {
+      const passMatch = await passwordChecking(
+        payload.oldPassword,
+        req.user.password
+      );
+
+      if (!passMatch) {
+        return res
+          .status(400)
+          .json({ message: "La contraseña actual no es correcta" });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(payload.newPassword, salt);
+      payload.password = hashedPassword;
+    }
+
+    const userUpdated = await updateUserService(id, payload);
+
+    if (!userUpdated) {
+      return res.status(400).json({ message: "El usuario no existe" });
+    }
+
+    res.status(200).json(userUpdated);
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar el usuario", error });
+  }
+};
+
+const addFavoriteWorkshop = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { workshopId } = req.body;
+    const workshopAdded = await addFavoriteWorkshopService(id, workshopId);
+
+    res.status(200).json(workshopAdded);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al agregar el workshop favorito", error });
+  }
+};
+
+const removeFavoriteWorkshop = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { workshopId } = req.body;
+    const workshopRemoved = await removeFavoriteWorkshopService(id, workshopId);
+
+    res.status(200).json(workshopRemoved);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al eliminar el workshop favorito", error });
+  }
+};
+
+const addFavoriteEvent = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { eventId } = req.body;
+    const eventAdded = await addFavoriteEventService(id, eventId);
+
+    res.status(200).json(eventAdded);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al agregar el evento favorito", error });
+  }
+};
+
+const removeFavoriteEvent = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { eventId } = req.body;
+    const eventRemoved = await removeFavoriteEventService(id, eventId);
+
+    res.status(200).json(eventRemoved);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al eliminar el evento favorito", error });
+  }
+};
+
 module.exports = {
   createUser,
   getUserToVerify,
@@ -283,4 +378,9 @@ module.exports = {
   getAllUsers,
   editUser,
   deleteUser,
+  updateUser,
+  addFavoriteWorkshop,
+  removeFavoriteWorkshop,
+  addFavoriteEvent,
+  removeFavoriteEvent
 };

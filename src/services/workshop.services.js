@@ -26,7 +26,7 @@ const getWorkshopService = async (id) => {
   const workshop = await Workshop.findById(id).populate(
     "createdBy",
     "username email"
-  );
+  )
   if (!workshop) {
     return res.status(404).json({ message: "Workshop no encontrado" });
   }

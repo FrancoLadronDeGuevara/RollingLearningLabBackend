@@ -25,6 +25,9 @@ const userSchema = new Schema(
       type: String,
       required: [true, "La contraseña es obligatoria"],
     },
+    userDescription: {
+      type: String,
+    },
     role: {
       type: String,
       enum: ["admin", "speaker", "user"],
@@ -81,12 +84,10 @@ const userSchema = new Schema(
         workshop: {
           type: Schema.Types.ObjectId,
           ref: "Workshop",
-          required: true,
         },
         status: {
           type: String,
-          enum: ["confirmado", "cancelado"],
-          required: true,
+          enum: ["ASISTIDO", "CANCELADO"],
         },
       },
     ],

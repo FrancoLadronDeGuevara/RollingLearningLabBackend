@@ -21,7 +21,7 @@ route.post("/add-event-comment/:id", isAuthenticated, addEventComment);
 
 route.put("/edit-comment/:id", isAuthenticated, editComment);
 
-route.get("/get-wokshop-comments/:id", isAuthenticated, getWorkshopComments);
+route.get("/get-workshop-comments/:id", isAuthenticated, getWorkshopComments);
 
 route.get("/get-event-comments/:id", isAuthenticated, getEventComments);
 
