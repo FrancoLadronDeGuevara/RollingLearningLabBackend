@@ -72,6 +72,14 @@ const workshopSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "User",
+        confirmedWorkshop: {
+          type: Boolean,
+          default: false,
+        },
+        hasEnteredWorkshop: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
   },

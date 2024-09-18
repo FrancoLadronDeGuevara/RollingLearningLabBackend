@@ -45,6 +45,38 @@ const editUserService = async (id, user) => {
   return User.findByIdAndUpdate(id, user, { new: true });
 };
 
+const updateUserService = async (id, user) => {
+  return User.findByIdAndUpdate(id, user, { new: true });
+};
+
+const addFavoriteWorkshopService = async (id, workshopId) => {
+  const user = await User.findById(id);
+  user.favoriteWorkshops.push(workshopId);
+  await user.save();
+  return workshopId;
+}
+
+const removeFavoriteWorkshopService = async (id, workshopId) => {
+  const user = await User.findById(id);
+  user.favoriteWorkshops.pull(workshopId);
+  await user.save();
+  return workshopId;
+}
+
+const addFavoriteEventService = async (id, eventId) => {
+  const user = await User.findById(id);
+  user.favoriteEvents.push(eventId);
+  await user.save();
+  return eventId;
+}
+
+const removeFavoriteEventService = async (id, eventId) => {
+  const user = await User.findById(id);
+  user.favoriteEvents.pull(eventId);
+  await user.save();
+  return eventId;
+}
+
 module.exports = {
   createUserService,
   getUserService,
@@ -54,4 +86,9 @@ module.exports = {
   getAllUsersService,
   deleteUserService,
   editUserService,
+  updateUserService,
+  addFavoriteWorkshopService,
+  removeFavoriteWorkshopService,
+  addFavoriteEventService,
+  removeFavoriteEventService
 };
