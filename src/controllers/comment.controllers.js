@@ -9,6 +9,8 @@ const {
   getWorkshopCommentsService,
   getEventCommentsService,
   getUserCommentsService,
+  deleteReplyService,
+  unblockCommentService,
 } = require("../services/comment.services");
 
 const addWorkshopComment = async (req, res) => {
@@ -19,7 +21,7 @@ const addWorkshopComment = async (req, res) => {
       author: req.user.id,
       workshop: id,
     };
-    const newComment = await addWorkshopCommentService(commentData, id);
+    const newComment = await addWorkshopCommentService(commentData);
     res.status(201).json(newComment);
   } catch (error) {
     res.status(500).json({ message: "Error al agregar comentario", error });
@@ -97,11 +99,9 @@ const replyComment = async (req, res) => {
     const replyData = {
       content: req.body.content,
       author: req.user.id,
-      workshop: req.body.workshop || null,
-      event: req.body.event || null,
     };
     const reply = await replyCommentService(id, replyData);
-    res.status(201).json(reply);
+    res.status(201).json({ reply, commentId: id });
   } catch (error) {
     res.status(500).json({ message: "Error al responder comentario", error });
   }
@@ -110,18 +110,33 @@ const replyComment = async (req, res) => {
 const deleteReply = async (req, res) => {
   try {
     const { id } = req.params;
-    const comment = await deleteCommentService(id);
-    res.status(200).json(comment);
+    const {replyId} = req.body;
+    console.log(id, replyId);
+    const deletedReply = await deleteReplyService(id, replyId);
+    res.status(200).json(deletedReply);
   } catch (error) {
     res.status(500).json({ message: "Error al eliminar respuesta", error });
+  }
+};
+
+const editReply = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const replyData = {
+      content: req.body.content,
+    };
+    const reply = await editCommentService(id, replyData);
+    res.status(200).json(reply);
+  } catch (error) {
+    res.status(500).json({ message: "Error al editar respuesta", error });
   }
 };
 
 const deleteComment = async (req, res) => {
   try {
     const { id } = req.params;
-    const comment = await deleteCommentService(id);
-    res.status(200).json(comment);
+    const deletedComment = await deleteCommentService(id);
+    res.status(200).json(deletedComment);
   } catch (error) {
     res.status(500).json({ message: "Error al eliminar comentario", error });
   }
@@ -130,8 +145,8 @@ const deleteComment = async (req, res) => {
 const likeComment = async (req, res) => {
   try {
     const { id } = req.params;
-    const comment = await likeCommentService(id, req.user.id);
-    res.status(200).json(comment);
+    const commentLiked = await likeCommentService(id, req.user.id);
+    res.status(200).json(commentLiked);
   } catch (error) {
     res.status(500).json({ message: "Error al dar me gusta", error });
   }
@@ -140,12 +155,22 @@ const likeComment = async (req, res) => {
 const blockComment = async (req, res) => {
   try {
     const { id } = req.params;
-    const comment = await blockCommentService(id);
-    res.status(200).json(comment);
+    const blockedComment = await blockCommentService(id);
+    res.status(200).json(blockedComment);
   } catch (error) {
     res.status(500).json({ message: "Error al bloquear comentario", error });
   }
 };
+
+const unblockComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const unblockedComment = await unblockCommentService(id);
+    res.status(200).json(unblockedComment);
+  } catch (error) {
+    res.status(500).json({ message: "Error al desbloquear comentario", error });
+  }
+}
 
 module.exports = {
   addWorkshopComment,
@@ -156,7 +181,9 @@ module.exports = {
   getUserComments,
   replyComment,
   deleteReply,
+  editReply,
   deleteComment,
   likeComment,
   blockComment,
+  unblockComment
 };
