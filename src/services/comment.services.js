@@ -3,13 +3,9 @@ const Workshop = require("../models/workshop.model");
 const Event = require("../models/event.model");
 const User = require("../models/user.model");
 
-const addWorkshopCommentService = async (comment, id, userId) => {
+const addWorkshopCommentService = async (comment) => {
   const newComment = new Comment(comment);
   await newComment.save();
-
-  await Workshop.findByIdAndUpdate(id, {
-    $push: { comments: newComment._id },
-  });
   return newComment;
 };
 
@@ -25,11 +21,17 @@ const addEventCommentService = async (comment, id, userId) => {
 
 const getWorkshopCommentsService = async (id) => {
   const comments = await Comment.find({ workshop: id })
-  .populate({
-    path: "author",
-    select: "username profileImage",
-  })
-    .populate("replies", "content author");
+    .populate({
+      path: "author",
+      select: "username profileImage",
+    })
+    .populate({
+      path: "replies",
+      populate: {
+        path: "author",
+        select: "username profileImage",
+      },
+    });
   return comments;
 };
 
@@ -51,11 +53,31 @@ const getUserCommentsService = async (id) => {
 };
 
 const editCommentService = async (id, commentData) => {
-  return Comment.findByIdAndUpdate(id, commentData, { new: true });
+  const editedComment = await Comment.findByIdAndUpdate(id, commentData, {
+    new: true,
+  })
+    .populate({
+      path: "author",
+      select: "username profileImage",
+    })
+    .populate({
+      path: "replies",
+      populate: {
+        path: "author",
+        select: "username profileImage",
+      },
+    });
+  return editedComment;
 };
 
 const deleteCommentService = async (id) => {
-  return Comment.findByIdAndDelete(id);
+  const comment = await Comment.findById(id);
+  comment.replies.forEach(async (reply) => {
+    await Comment.findByIdAndDelete(reply._id);
+  });
+
+  await Comment.findByIdAndDelete(id);
+  return comment;
 };
 
 const replyCommentService = async (id, replyData) => {
@@ -64,7 +86,37 @@ const replyCommentService = async (id, replyData) => {
   comment.replies.push(reply);
   await reply.save();
   await comment.save();
-  return reply;
+
+  const populatedReply = await Comment.findById(reply._id).populate({
+    path: "author",
+    select: "username profileImage",
+  });
+
+  return populatedReply;
+};
+
+const deleteReplyService = async (id, replyId) => {
+  const comment = await Comment.findById(id);
+  await Comment.findByIdAndDelete(replyId);
+  comment.replies = comment.replies.filter(
+    (reply) => reply._id.toString() !== replyId
+  );
+  await comment.save();
+
+  const populatedComment = await Comment.findById(id)
+    .populate({
+      path: "author",
+      select: "username profileImage",
+    })
+    .populate({
+      path: "replies",
+      populate: {
+        path: "author",
+        select: "username profileImage",
+      },
+    });
+
+  return populatedComment;
 };
 
 const likeCommentService = async (id, userId) => {
@@ -79,7 +131,53 @@ const likeCommentService = async (id, userId) => {
 };
 
 const blockCommentService = async (id) => {
-  return Comment.findByIdAndUpdate(id, { blocked: true }, { new: true });
+  await Comment.findByIdAndUpdate(
+    id,
+    {
+      blocked: true,
+    },
+    { new: true }
+  );
+
+  const populatedComment = await Comment.findById(id)
+    .populate({
+      path: "author",
+      select: "username profileImage",
+    })
+    .populate({
+      path: "replies",
+      populate: {
+        path: "author",
+        select: "username profileImage",
+      },
+    });
+
+  return populatedComment;
+};
+
+const unblockCommentService = async (id) => {
+  await Comment.findByIdAndUpdate(
+    id,
+    {
+      blocked: false,
+    },
+    { new: true }
+  );
+
+  const populatedComment = await Comment.findById(id)
+    .populate({
+      path: "author",
+      select: "username profileImage",
+    })
+    .populate({
+      path: "replies",
+      populate: {
+        path: "author",
+        select: "username profileImage",
+      },
+    });
+
+  return populatedComment;
 };
 
 module.exports = {
@@ -91,6 +189,8 @@ module.exports = {
   editCommentService,
   deleteCommentService,
   replyCommentService,
+  deleteReplyService,
   likeCommentService,
   blockCommentService,
+  unblockCommentService,
 };

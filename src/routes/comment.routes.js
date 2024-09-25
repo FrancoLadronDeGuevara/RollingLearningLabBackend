@@ -10,9 +10,11 @@ const {
   getUserComments,
   replyComment,
   deleteReply,
+  editReply,
   deleteComment,
   likeComment,
   blockComment,
+  unblockComment,
 } = require("../controllers/comment.controllers");
 
 route.post("/add-workshop-comment/:id", isAuthenticated, addWorkshopComment);
@@ -32,9 +34,11 @@ route.get(
   getUserComments
 );
 
-route.put("/reply-comment/:id", isAuthenticated, replyComment);
+route.post("/reply-comment/:id", isAuthenticated, replyComment);
 
-route.delete("/delete-reply/:id", isAuthenticated, deleteReply);
+route.put("/delete-reply/:id", isAuthenticated, deleteReply);
+
+route.put("/edit-reply/:id", isAuthenticated, editReply);
 
 route.delete("/delete-comment/:id", isAuthenticated, deleteComment);
 
@@ -45,6 +49,22 @@ route.put(
   isAuthenticated,
   isAdmin("admin"),
   blockComment
+);
+
+route.put("/block-reply/:id", isAuthenticated, isAdmin("admin"), blockComment);
+
+route.put(
+  "/unblock-comment/:id",
+  isAuthenticated,
+  isAdmin("admin"),
+  unblockComment
+);
+
+route.put(
+  "/unblock-reply/:id",
+  isAuthenticated,
+  isAdmin("admin"),
+  unblockComment
 );
 
 module.exports = route;
