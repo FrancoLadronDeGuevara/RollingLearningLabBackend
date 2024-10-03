@@ -15,6 +15,8 @@ const {
   removeFavoriteWorkshop,
   addFavoriteEvent,
   removeFavoriteEvent,
+  getFavoriteWorkshops,
+  getFavoriteEvents,
 } = require("../controllers/user.controllers");
 const { isAuthenticated, isAdmin } = require("../middlewares/auth");
 const route = Router();
@@ -32,7 +34,6 @@ route.get("/get-user", isAuthenticated, getUser);
 route.get(
   "/get-user-by-id/:id",
   isAuthenticated,
-  isAdmin("admin"),
   getUserById
 );
 
@@ -57,5 +58,9 @@ route.post(
 route.post("/add-favorite-event", isAuthenticated, addFavoriteEvent);
 
 route.post("/remove-favorite-event", isAuthenticated, removeFavoriteEvent);
+
+route.get("/get-favorite-workshops", isAuthenticated, getFavoriteWorkshops);
+
+route.get("/get-favorite-events", isAuthenticated, getFavoriteEvents);
 
 module.exports = route;

@@ -1,5 +1,6 @@
 const Request = require("../models/request.model");
 const User = require("../models/user.model");
+const Workshop = require("../models/workshop.model");
 
 const getAllRequestsService = async () => {
   const requests = await Request.find({}).populate("user", "username role");
@@ -18,6 +19,20 @@ const createWorkshopRequestService = async (request) => {
   return newWorkshopRequest;
 };
 
+const getWorkshopRequestService = async (userId) => {
+  try {
+    const requestsFound = await Request.find({
+      user: userId,
+      workshopRequest: { $exists: true },
+    });
+
+    return requestsFound;
+  } catch (error) {
+    console.error("Error al obtener las requests del usuario", error);
+    throw new Error("Error al obtener las requests");
+  }
+};
+
 const editRequestService = async (id, request) => {
   if (request.roleRequest?.status === "ACEPTADA") {
     await User.findByIdAndUpdate(
@@ -25,7 +40,14 @@ const editRequestService = async (id, request) => {
       { role: "speaker" },
       { new: true }
     );
+  } else if (request.workshopRequest?.status === "ACEPTADA") {
+    await Workshop.findByIdAndUpdate(
+      request.referenceId,
+      { active: true },
+      { new: true }
+    );
   }
+
   const updatedRequest = await Request.findByIdAndUpdate(id, request, {
     new: true,
   }).populate("user", "username role");
@@ -94,4 +116,5 @@ module.exports = {
   getRoleRequestService,
   deleteRequestService,
   resendRequestService,
+  getWorkshopRequestService,
 };

@@ -7,6 +7,7 @@ const {
   deleteRequestService,
   getAllRequestsService,
   resendRequestService,
+  getWorkshopRequestService,
 } = require("../services/request.services");
 
 const getAllRequests = async (req, res) => {
@@ -43,13 +44,36 @@ const requestSpeaker = async (req, res) => {
 
 const requestWorkshop = async (req, res) => {
   try {
+    const { id } = req.user;
     const request = req.body;
-    const createdRequest = await createWorkshopRequestService(request);
+
+    const newRequest = {
+      user: id,
+      workshop: request.workshop,
+      workshopRequest: {
+        status: "PENDIENTE",
+        request: true,
+      },
+    };
+
+    const createdRequest = await createWorkshopRequestService(newRequest);
     return res.status(201).json(createdRequest);
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error al crear la solicitud de taller", error });
+      .json({ message: "Error al crear la solicitud del workshop", error });
+  }
+};
+
+const getWorkshopRequest = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const request = await getWorkshopRequestService(id);
+    return res.status(200).json(request);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al obtener la solicitud del workshop", error });
   }
 };
 
@@ -57,7 +81,7 @@ const editRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const request = req.body;
-console.log(request)
+
     const updatedRequest = await editRequestService(id, request);
 
     return res.status(200).json(updatedRequest);
@@ -83,7 +107,6 @@ const cancelRequest = async (req, res) => {
 const getRoleRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
     const request = await getRoleRequestService(id);
     return res.status(200).json(request);
   } catch (error) {
@@ -122,9 +145,10 @@ module.exports = {
   getAllRequests,
   requestSpeaker,
   requestWorkshop,
+  getWorkshopRequest,
   editRequest,
   cancelRequest,
   getRoleRequest,
   deleteRequest,
-  resendRequest
+  resendRequest,
 };
