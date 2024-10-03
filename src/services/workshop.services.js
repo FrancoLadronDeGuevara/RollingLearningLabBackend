@@ -1,5 +1,6 @@
 const Workshop = require("../models/workshop.model");
 const User = require("../models/user.model");
+const Request = require("../models/request.model");
 
 const addWorkshopService = async (workshop, id) => {
   const newWorkshop = new Workshop({ ...workshop, createdBy: id });
@@ -47,10 +48,32 @@ const deleteWorkshopService = async (id) => {
     return res.status(404).json({ message: "No ha encontrado el workshop" });
   return deleteWorkshop;
 };
+
+const addWorkshopBySpeakerService = async (workshop, id) => {
+  const newWorkshop = new Workshop({ ...workshop, createdBy: id, active: false });
+  if (!newWorkshop)
+    return res.status(400).json({ message: "No se pudo agregar el workshop" });
+  await newWorkshop.save();
+  await User.findByIdAndUpdate(id, {
+    $push: { createdWorkshops: newWorkshop._id },
+  });
+  const newRequest = new Request({
+    user: id,
+    workshop: newWorkshop._id,
+    workshopRequest: {
+      status: "PENDIENTE",
+      request: true,
+    },
+  })
+  await newRequest.save();
+  return newWorkshop;
+};
+
 module.exports = {
   addWorkshopService,
   editWorkshopService,
   getWorkshopService,
   getAllWorkshopsService,
   deleteWorkshopService,
+  addWorkshopBySpeakerService,
 };
