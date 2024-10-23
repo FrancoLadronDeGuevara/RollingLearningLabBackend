@@ -9,7 +9,8 @@ const {
   cancelRequest,
   getRoleRequest,
   deleteRequest,
-  resendRequest
+  resendRequest,
+  getWorkshopRequest
 } = require("../controllers/request.controllers");
 
 route.get("/", isAuthenticated, isAdmin("admin"), getAllRequests);
@@ -22,6 +23,8 @@ route.post(
   isAdmin("speaker"),
   requestWorkshop
 );
+
+route.get("/get-workshop-request", isAuthenticated, isAdmin("speaker"), getWorkshopRequest);
 
 route.put("/edit-request/:id", isAuthenticated, isAdmin("admin"), editRequest);
 

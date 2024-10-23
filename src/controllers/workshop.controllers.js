@@ -5,6 +5,7 @@ const {
   getWorkshopService,
   getAllWorkshopsService,
   deleteWorkshopService,
+  addWorkshopBySpeakerService,
 } = require("../services/workshop.services");
 
 const addWorkshop = async (req, res) => {
@@ -90,10 +91,25 @@ const deleteWorkshop = async (req, res) => {
     return res.status(500).json({ message: `Ha ocurrido un error: ${error}` });
   }
 };
+
+const addWorkshopBySpeaker = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const workshop = req.body;
+    const workshopCreated = await addWorkshopBySpeakerService(workshop, id);
+    return res.status(200).json(workshopCreated);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al crear el workshop ", error });
+  }
+}
+
 module.exports = {
   addWorkshop,
   editWorkshop,
   getWorkshop,
   getAllWorkshops,
   deleteWorkshop,
+  addWorkshopBySpeaker
 };

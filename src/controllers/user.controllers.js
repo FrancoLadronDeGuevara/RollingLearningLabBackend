@@ -16,6 +16,8 @@ const {
   removeFavoriteWorkshopService,
   removeFavoriteEventService,
   addFavoriteEventService,
+  getFavoriteEventsService,
+  getFavoriteWorkshopsService,
 } = require("../services/user.services");
 const bcrypt = require("bcrypt");
 const sendToken = require("../helpers/jwtToken");
@@ -367,6 +369,30 @@ const removeFavoriteEvent = async (req, res) => {
   }
 };
 
+const getFavoriteWorkshops = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const favoriteWorkshops = await getFavoriteWorkshopsService(id);
+    res.status(200).json(favoriteWorkshops);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener los eventos favoritos", error });
+  }
+}
+
+const getFavoriteEvents = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const favoriteEvents = await getFavoriteEventsService(id);
+    res.status(200).json(favoriteEvents);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener los eventos favoritos", error });
+  }
+}
+
 module.exports = {
   createUser,
   getUserToVerify,
@@ -382,5 +408,7 @@ module.exports = {
   addFavoriteWorkshop,
   removeFavoriteWorkshop,
   addFavoriteEvent,
-  removeFavoriteEvent
+  removeFavoriteEvent,
+  getFavoriteWorkshops,
+  getFavoriteEvents
 };
